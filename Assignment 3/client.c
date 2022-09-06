@@ -4,26 +4,31 @@
 #include <string.h>
 #include <unistd.h>
 
-int main(int argc, char **argv)
+int main()
 {
-    int sockfd;
+    int sock_fd;
     char sendline[100];
     char recvline[100];
     struct sockaddr_in servaddr;
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
     bzero(&servaddr, sizeof servaddr);
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(22000);
     servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    connect(sock_fd, (struct sockaddr *)&servaddr, sizeof(servaddr));
     while (1)
     {
         bzero(sendline, 100);
         bzero(recvline, 100);
         printf("Client: ");
         fgets(sendline, 100, stdin);
-        send(sockfd, sendline, strlen(sendline), 0);
-        recv(sockfd, recvline, 100, 0);
+        if (strcasecmp(sendline, "quit\n") == 0)
+        {
+            break;
+        }
+        send(sock_fd, sendline, strlen(sendline), 0);
+        recv(sock_fd, recvline, 100, 0);
         printf("Server: %s", recvline);
     }
+    close(sock_fd);
 }
