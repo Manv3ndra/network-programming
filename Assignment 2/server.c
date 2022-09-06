@@ -21,6 +21,10 @@ int main()
         char str[100];
         bzero(str, 100);
         recv(comm_fd, str, 100, 0);
+        if (strcasecmp(str, "exit\n") == 0)
+        {
+            break;
+        }
         printf("Echoing back - %s", str);
         send(comm_fd, str, strlen(str), 0);
     }

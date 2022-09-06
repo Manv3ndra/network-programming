@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
@@ -12,7 +12,7 @@ int main()
 {
     int sockfd;
     char buffer[MAXLINE];
-    char *hello = "Hello from server";
+    char sendline[MAXLINE];
     struct sockaddr_in servaddr, cliaddr;
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
@@ -29,12 +29,24 @@ int main()
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    int len, n;
-    len = sizeof(cliaddr);
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
-    buffer[n] = '\0';
-    printf("Client : %s\n", buffer);
-    sendto(sockfd, (const char *)hello, strlen(hello), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
-    printf("Hello message sent.\n");
+    int n;
+    socklen_t len;
+    while (1)
+    {
+        bzero(buffer, MAXLINE);
+        bzero(sendline, MAXLINE);
+        len = sizeof(cliaddr);
+        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
+        buffer[n] = '\0';
+        printf("Client : %s", buffer);
+        if (strcasecmp(buffer, "exit\n") == 0)
+        {
+            break;
+        }
+        printf("Server : ");
+        fgets(sendline, MAXLINE, stdin);
+        sendto(sockfd, (char *)sendline, strlen(sendline), MSG_SEND, (const struct sockaddr *)&cliaddr, len);
+    }
+    close(sockfd);
     return 0;
 }
