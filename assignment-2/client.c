@@ -30,12 +30,12 @@ int main()
     {
         bzero(buffer, MAXLINE);
         fgets(buffer, MAXLINE, stdin);
-        if (send(sock_fd, buffer, strlen(MAXLINE), 0) < 0)
+        if (send(sock_fd, buffer, MAXLINE, 0) < 0)
         {
             printf("Send failed");
             exit(EXIT_FAILURE);
         }
-        if (strcasecmp(buffer, "quit\n") == 0)
+        if (strcasecmp(buffer, "exit\n") == 0)
         {
             break;
         }
